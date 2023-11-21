@@ -8,6 +8,12 @@ import { VerifyEmail } from "../controllers/authentication/verifyemail";
 import { VerifyToken } from "../middlewares/verifytoken";
 import { DeleteUser } from "../controllers/authentication/deleteuser";
 const router = Router();
+class CustomUserProfileError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CustomUserProfileError";
+  }
+}
 router.post("/signup", async (req: Request, res: Response) => {
   try {
     const userData = req.body as User;
@@ -15,7 +21,14 @@ router.post("/signup", async (req: Request, res: Response) => {
     const token = await CreateToken(result);
     res.status(200).json({ userToken: token });
   } catch (err: any) {
-    throw new Error("Error with signing up user");
+    if (err instanceof CustomUserProfileError) {
+      return res.status(400).json({ error: err.message });
+    } else if (err instanceof Error) {
+      // Handle other specific errors as needed
+      return res.status(500).json({ error: err });
+    }
+
+    return res.json({ error: err });
   }
 });
 router.post(
@@ -28,8 +41,14 @@ router.post(
 
       res.status(200).json({ userToken: result });
     } catch (err: any) {
-      console.log(err);
-      throw new Error("Error with verifying email");
+      if (err instanceof CustomUserProfileError) {
+        return res.status(400).json({ error: err.message });
+      } else if (err instanceof Error) {
+        // Handle other specific errors as needed
+        return res.status(500).json({ error: err });
+      }
+
+      return res.json({ error: err });
     }
   }
 );
@@ -43,7 +62,14 @@ router.delete(
 
       res.status(200).json({ message: result });
     } catch (err: any) {
-      throw new Error("Error with deleting user");
+      if (err instanceof CustomUserProfileError) {
+        return res.status(400).json({ error: err.message });
+      } else if (err instanceof Error) {
+        // Handle other specific errors as needed
+        return res.status(500).json({ error: err });
+      }
+
+      return res.json({ error: err });
     }
   }
 );

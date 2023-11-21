@@ -146,3 +146,55 @@ paths:
                   error:
                     type: string
                     description: Error message
+  /profile:
+    get:
+      summary: Get user profile information
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userprofile:
+                    type: object # Adjust the user profile schema as needed
+                    description: User profile data
+
+  /profile/update:
+    post:
+      summary: Update user profile information
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object # Adjust the request body schema as needed
+              properties:
+                school:
+                  type: string
+                  description: School information
+                faculty:
+                  type: string
+                  description: Faculty information
+                department:
+                  type: string
+                  description: Department information
+                level:
+                  type: string
+                  description: Level information
+      responses:
+        "200":
+          description: User profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Update confirmation message

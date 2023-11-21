@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import admin from "firebase-admin";
-
+import jwt, { JwtPayload } from "jsonwebtoken";
+import "dotenv/config";
 export const VerifyToken = async (
   req: Request,
   res: Response,
@@ -15,11 +15,17 @@ export const VerifyToken = async (
   const token = authorizationHeader.split("Bearer ")[1];
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
+    const secretKey = process.env.KALLUM; // Replace with your actual secret key
+    if (!secretKey) {
+      throw new Error("Secret key is missing or undefined");
+    }
 
-    if (!decodedToken.uid) {
+    const decodedToken = jwt.verify(token, secretKey) as JwtPayload;
+
+    if (!decodedToken || !decodedToken.uid) {
       return res.status(401).json({ error: "Invalid token" });
     }
+
     // Adding the UID to the request object for future use in the route handlers
     (req as any).uid = decodedToken.uid;
     next();
